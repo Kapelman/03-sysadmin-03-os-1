@@ -120,6 +120,10 @@ drwxr-xr-x 3 root    root     4096 Dec 19 19:42 ..
 - Удаляем файл
 ```
 vagrant@vagrant:~$ rm file_ping
+```
+- Проверим командой ls, что файл отсутствует.
+
+```
 vagrant@vagrant:~$ ls -al
 total 96
 drwx------ 3 vagrant vagrant  4096 Jan 18 20:36 .config
