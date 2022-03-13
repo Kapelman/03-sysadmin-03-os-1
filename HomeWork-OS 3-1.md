@@ -155,41 +155,21 @@ ping    1806 vagrant    2w   REG  253,0    44014 1048629 /home/vagrant/file_ping
 ping    1806 vagrant    3u  icmp             0t0   34871 00000000:0001->00000000:0000
 ping    1806 vagrant    4u  sock    0,9      0t0   34872 protocol: PINGv6
 ```
-- Воспользуемся командой tee (также можно и просто перенаправить вывод, например, echo stop >file_ping )
-видим, что файл file_ping снова появился, размер файла 7 байт.
-```
-echo string | sudo tee /home/vagrant/file_ping
 
-vagrant@vagrant:~$ ls -al
-total 100
-drwx------ 3 vagrant vagrant  4096 Jan 18 20:36 .config
--rw-rw-r-- 1 vagrant vagrant    30 Feb  2 20:08 file
--rw-rw-r-- 1 vagrant vagrant    13 Jan 26 21:22 file1
--rw-rw-r-- 1 vagrant vagrant  9022 Feb  2 20:08 file3
--rw-rw-r-- 1 vagrant vagrant     7 Feb  2 21:16 file_ping
--rw------- 1 vagrant vagrant   317 Jan 28 21:37 .lesshst
+- Освобожение места возможно двумя способами.
+Способ 1. Можно послать сигнал процессу, который заблокировал удаленный файл с помощью команды kill, процесс остановится, место занятое 
+удаленным файлом освободится.
+Способ 2. Записать пустое значение в файл потоков ( у меня способ не сработал из-за отсутствия полномочий, хотя везде
+этот способ описывается как работающий).
+Например:
+```
+vagrant@vagrant:~$ sudo -u root echo >/proc/1806/fd/1
+-bash: /proc/21966/fd/1: Permission denied
+
+vagrant@vagrant:~$ sudo -u root echo >/proc/1806/fd/2
+-bash: /proc/21966/fd/2: Permission denied
 ```
 
-- единственно не могу понять почему в запущенном процессе нет происходит обновления информации.
-```
-vagrant@vagrant:~$ sudo lsof -p 1806
-COMMAND  PID    USER   FD   TYPE DEVICE SIZE/OFF    NODE NAME
-ping    1806 vagrant  cwd    DIR  253,0     4096 1051845 /home/vagrant
-ping    1806 vagrant  rtd    DIR  253,0     4096       2 /
-ping    1806 vagrant  txt    REG  253,0    72776 1835881 /usr/bin/ping
-ping    1806 vagrant  mem    REG  253,0  3035952 1835290 /usr/lib/locale/locale-archive
-ping    1806 vagrant  mem    REG  253,0   137584 1841525 /usr/lib/x86_64-linux-gnu/libgpg-error.so.0.28.0
-ping    1806 vagrant  mem    REG  253,0  2029224 1841468 /usr/lib/x86_64-linux-gnu/libc-2.31.so
-ping    1806 vagrant  mem    REG  253,0   101320 1841650 /usr/lib/x86_64-linux-gnu/libresolv-2.31.so
-ping    1806 vagrant  mem    REG  253,0  1168056 1835853 /usr/lib/x86_64-linux-gnu/libgcrypt.so.20.2.5
-ping    1806 vagrant  mem    REG  253,0    31120 1841471 /usr/lib/x86_64-linux-gnu/libcap.so.2.32
-ping    1806 vagrant  mem    REG  253,0   191472 1841428 /usr/lib/x86_64-linux-gnu/ld-2.31.so
-ping    1806 vagrant    0u   CHR  136,0      0t0       3 /dev/pts/0
-ping    1806 vagrant    1w   REG  253,0   164541 1048629 /home/vagrant/file_ping (deleted)
-ping    1806 vagrant    2w   REG  253,0   164541 1048629 /home/vagrant/file_ping (deleted)
-ping    1806 vagrant    3u  icmp             0t0   34871 00000000:0001->00000000:0000
-ping    1806 vagrant    4u  sock    0,9      0t0   34872 protocol: PINGv6
-```
 4. Занимают ли зомби-процессы какие-то ресурсы в ОС (CPU, RAM, IO)?
 
 Зомби не занимают памяти, CPU или IO, но блокируют записи в таблице процессов, размер которой ограничен для каждого пользователя и системы в целом.
